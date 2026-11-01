@@ -84,16 +84,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <HeartPulse className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
                   NutriWise <span className="text-[#059669] dark:text-[#10b981]">AI</span>
                 </span>
-                <span className="hidden sm:inline-flex shrink-0">
+                <div className="hidden sm:inline-flex items-center gap-1.5 shrink-0">
                   <Badge variant="emerald" size="sm" icon={<Activity className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}>
                     SDG&nbsp;3
                   </Badge>
-                </span>
-                <InfoTooltip termKey="sdg3" size="sm" />
+                  <InfoTooltip termKey="sdg3" size="sm" className="!ml-0" />
+                </div>
               </div>
               <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5 hidden xs:block">
                 Personalized Nutrition Recommendation Engine
