@@ -760,31 +760,31 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                       id: 'diabetes',
                       label: 'Type-2 Diabetes / Pre-diabetes',
                       desc: 'Strictly enforces Low Glycemic Index (<55) to prevent postprandial glucose spikes.',
-                      termKey: 'glycemicIndex',
+                      termKey: 'diabetes' as const,
                     },
                     {
                       id: 'hypertension',
                       label: 'Hypertension (High BP)',
                       desc: 'Applies DASH-diet rules: restricts sodium, papads, pickles; prioritizes potassium.',
-                      termKey: 'dietaryCaution',
+                      termKey: 'hypertension' as const,
                     },
                     {
                       id: 'pcos',
                       label: 'PCOS / PCOD Hormonal Care',
                       desc: 'Emphasizes insulin-sensitizing complex carbs and anti-inflammatory spices.',
-                      termKey: 'dietaryCaution',
+                      termKey: 'pcos' as const,
                     },
                     {
                       id: 'thyroid',
                       label: 'Hypothyroid / Thyroid Support',
                       desc: 'Ensures bioavailable selenium and cooked crucifers, avoiding raw goitrogens.',
-                      termKey: 'dietaryCaution',
+                      termKey: 'thyroid' as const,
                     },
                     {
                       id: 'lactose_intolerance',
                       label: 'Lactose Intolerance',
                       desc: 'Completely eliminates dairy, cow milk, paneer & curd; replaces with plant proteins.',
-                      termKey: 'protein',
+                      termKey: 'lactose_intolerance' as const,
                     },
                   ].map((item) => {
                     const isSelected = form.healthConditions.includes(item.id as HealthCondition);
