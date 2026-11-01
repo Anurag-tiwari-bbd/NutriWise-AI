@@ -8,10 +8,10 @@ import {
   Flame, 
   X, 
   ArrowUpDown,
-  BookOpen,
   Wheat,
   Leaf
 } from 'lucide-react';
+import { PlateCutleryIcon } from '../common/PlateCutleryIcon';
 import { INDIAN_MEALS } from '../../data/indianMeals';
 import { MealItem, DietPreference } from '../../types/nutrition';
 import { Badge } from '../common/Badge';
@@ -89,7 +89,7 @@ export const FoodExplorer: React.FC<FoodExplorerProps> = ({
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
               <span className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
-                <BookOpen className="w-6 h-6" />
+                <PlateCutleryIcon className="w-6 h-6" />
               </span>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">

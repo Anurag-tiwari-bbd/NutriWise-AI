@@ -10,9 +10,9 @@ import {
   Activity,
   Flame,
   ArrowRight,
-  BookOpen,
   History
 } from 'lucide-react';
+import { PlateCutleryIcon } from './PlateCutleryIcon';
 import { Badge } from './Badge';
 import { InfoTooltip } from './InfoTooltip';
 import { DEMO_PROFILES } from '../../data/demoProfiles';
@@ -219,7 +219,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#17243A]'
               }`}
             >
-              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <PlateCutleryIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Food Explorer</span>
             </button>
 
@@ -364,7 +364,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               activeView === 'explorer' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'
             }`}
           >
-            <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <PlateCutleryIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Indian Food Explorer (112+ Dishes)</span>
           </button>
 
