@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     {/* Sub-option 1: Health Assessment Form */}
                     <button
                       onClick={() => {
-                        handleNavClick('assessment', true);
+                        handleNavClick('assessment', false);
                       }}
                       className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/80 dark:hover:bg-[#17243A] transition-colors flex items-start gap-2.5 group"
                     >
@@ -157,13 +157,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 flex items-center gap-1.5">
-                          <span>Assessment Form</span>
+                          <span>{hasActivePlan ? 'Take Reassessment' : 'Assessment Form'}</span>
                           {activeView === 'assessment' && (
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           )}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                          Start new or edit metabolic profile
+                          {hasActivePlan ? 'Review active evaluation or edit metrics' : 'Start new clinical metabolic profile'}
                         </div>
                       </div>
                     </button>
@@ -288,13 +288,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Primary Action Button: Start Assessment - strictly bounded on front screen */}
+            {/* Primary Action Button: Start Assessment / Take Reassessment */}
             <button
-              onClick={() => handleNavClick('assessment', true)}
+              onClick={() => handleNavClick('assessment', false)}
               className="px-2.5 sm:px-3 xl:px-3.5 py-1.5 sm:py-1.5 xl:py-2 rounded-xl text-xs xl:text-[13px] font-bold bg-[#059669] hover:bg-[#047857] text-white shadow-sm transition-all flex items-center gap-1.5 hover:scale-[1.02] whitespace-nowrap shrink-0"
             >
               <Flame className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
-              <span>Start Assessment</span>
+              <span>{hasActivePlan ? 'Take Reassessment' : 'Start Assessment'}</span>
               <ArrowRight className="w-3.5 h-3.5 text-emerald-100 shrink-0 hidden sm:inline" />
             </button>
           </div>
@@ -316,6 +316,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-200 dark:border-[#26364D] bg-white dark:bg-[#0F172A] px-4 pt-3 pb-6 space-y-3 animate-fade-in shadow-xl">
+          {/* Mobile Primary Action Button */}
+          <button
+            onClick={() => handleNavClick('assessment', false)}
+            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-[#059669] hover:bg-[#047857] text-white shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95"
+          >
+            <Flame className="w-3.5 h-3.5 text-emerald-200" />
+            <span>{hasActivePlan ? 'Take Reassessment' : 'Start Assessment'}</span>
+            <ArrowRight className="w-3.5 h-3.5 text-emerald-100" />
+          </button>
+
           <button
             onClick={() => handleNavClick('landing')}
             className={`w-full text-left px-4 py-3 rounded-xl font-semibold text-sm ${
@@ -331,13 +341,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               Health Assessment
             </div>
             <button
-              onClick={() => handleNavClick('assessment', true)}
+              onClick={() => handleNavClick('assessment', false)}
               className={`w-full text-left px-3 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 ${
                 activeView === 'assessment' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'
               }`}
             >
               <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Assessment Form</span>
+              <span>{hasActivePlan ? 'Take Reassessment' : 'Assessment Form'}</span>
             </button>
             {onOpenHistory && (
               <button

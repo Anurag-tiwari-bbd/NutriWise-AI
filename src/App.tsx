@@ -377,13 +377,13 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1">
+      <main className="flex-1 pb-20 sm:pb-12">
         {activeView === 'landing' && (
           <LandingPage
             onStartAssessment={() => {
               navigateTo({
                 view: 'assessment',
-                isReassessing: Boolean(activeProfile),
+                isReassessing: false,
               });
             }}
             onSelectDemoProfile={handleSelectDemoProfile}
