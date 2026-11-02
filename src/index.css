@@ -28,12 +28,16 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
     background-color: var(--bg-main);
     color: var(--text-primary);
     transition: background-color 0.25s ease, color 0.25s ease;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 }
 

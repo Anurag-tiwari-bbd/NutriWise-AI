@@ -365,7 +365,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8fafc] dark:bg-[#0B1220] text-slate-800 dark:text-[#F8FAFC] antialiased">
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] dark:bg-[#0B1220] text-slate-800 dark:text-[#F8FAFC] antialiased w-full max-w-full overflow-x-hidden">
       {/* Navigation Bar with Phase 6 Controls */}
       <Navbar
         activeView={activeView}
