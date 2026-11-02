@@ -221,7 +221,16 @@ export const App: React.FC = () => {
       const saved = localStorage.getItem('nutriwise_active_session');
       if (saved) {
         const { profile, metrics, plan } = JSON.parse(saved);
-        if (profile && metrics && plan) {
+        // CRITICAL: Demo profiles are transient evaluation personas and MUST NOT restore on fresh app open!
+        const isDemo = profile?.id?.startsWith('demo-') || profile?.isDemo;
+        if (isDemo) {
+          // Permanently purge any leftover demo profile from localStorage
+          localStorage.removeItem('nutriwise_active_session');
+          setActiveProfile(null);
+          setActiveMetrics(null);
+          setActivePlan(null);
+        } else if (profile && metrics && plan) {
+          // Genuine personal user profile: automatically restore
           setActiveProfile(profile);
           setActiveMetrics(metrics);
           setActivePlan(plan);
@@ -262,14 +271,18 @@ export const App: React.FC = () => {
     setActivePlan(plan);
     setFastingMode('none');
 
+    // DO NOT save demo profile to permanent localStorage!
+    // Demo profiles are purely for exploring the app and should never persist across app exits.
     try {
-      localStorage.setItem('nutriwise_active_session', JSON.stringify({
-        profile,
-        metrics,
-        plan,
-      }));
+      const existing = localStorage.getItem('nutriwise_active_session');
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        if (parsed.profile?.id?.startsWith('demo-')) {
+          localStorage.removeItem('nutriwise_active_session');
+        }
+      }
     } catch {
-      // Ignore quota errors
+      // Ignore
     }
 
     // Capture online network timestamp with offline device fallback
@@ -337,14 +350,29 @@ export const App: React.FC = () => {
     setActivePlan(record.plan);
     setFastingMode('none');
 
-    try {
-      localStorage.setItem('nutriwise_active_session', JSON.stringify({
-        profile: record.profile,
-        metrics: record.metrics,
-        plan: record.plan,
-      }));
-    } catch {
-      // Ignore quota errors
+    const isDemo = record.isDemo || record.profile.id?.startsWith('demo-');
+    if (!isDemo) {
+      try {
+        localStorage.setItem('nutriwise_active_session', JSON.stringify({
+          profile: record.profile,
+          metrics: record.metrics,
+          plan: record.plan,
+        }));
+      } catch {
+        // Ignore quota errors
+      }
+    } else {
+      try {
+        const existing = localStorage.getItem('nutriwise_active_session');
+        if (existing) {
+          const parsed = JSON.parse(existing);
+          if (parsed.profile?.id?.startsWith('demo-')) {
+            localStorage.removeItem('nutriwise_active_session');
+          }
+        }
+      } catch {
+        // Ignore
+      }
     }
 
     navigateTo({ view: 'dashboard', isReassessing: false, modal: null, recipeId: null, hash: null });
@@ -373,7 +401,7 @@ export const App: React.FC = () => {
         onSelectDemoProfile={handleSelectDemoProfile}
         onOpenDisclaimer={() => navigateTo({ modal: 'disclaimer' })}
         onOpenHistory={() => navigateTo({ modal: 'history' })}
-        hasActivePlan={Boolean(activeProfile)}
+        hasActivePlan={Boolean(activeProfile && !activeProfile.id?.startsWith('demo-'))}
       />
 
       {/* Main Content Area */}
@@ -388,8 +416,8 @@ export const App: React.FC = () => {
             }}
             onSelectDemoProfile={handleSelectDemoProfile}
             onOpenVivaDefense={() => navigateTo({ modal: 'inspector' })}
-            hasActiveProfile={Boolean(activeProfile)}
-            activeProfileName={activeProfile?.name}
+            hasActiveProfile={Boolean(activeProfile && !activeProfile.id?.startsWith('demo-'))}
+            activeProfileName={activeProfile?.id?.startsWith('demo-') ? undefined : activeProfile?.name}
             onScrollToHowItWorks={() => {
               const el = document.getElementById('how-it-works');
               if (el) {
@@ -402,7 +430,7 @@ export const App: React.FC = () => {
 
         {/* Phase 3: Interactive Multi-Step Health Assessment Wizard or Completed Status */}
         {activeView === 'assessment' && (
-          activeProfile && activeMetrics && !isReassessing ? (
+          activeProfile && !activeProfile.id?.startsWith('demo-') && activeMetrics && !isReassessing ? (
             <AssessmentCompletedCard
               profile={activeProfile}
               metrics={activeMetrics}
@@ -434,7 +462,7 @@ export const App: React.FC = () => {
                   navigateTo({ view: activeProfile ? 'dashboard' : 'landing', isReassessing: false });
                 }
               }}
-              initialProfile={isReassessing ? activeProfile : null}
+              initialProfile={isReassessing && !activeProfile?.id?.startsWith('demo-') ? activeProfile : null}
             />
           )
         )}
