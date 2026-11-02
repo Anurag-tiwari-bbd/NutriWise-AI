@@ -21,6 +21,7 @@ import { FoodExplorer } from './components/explorer/FoodExplorer';
 import { VivaDefenseModal } from './components/common/VivaDefenseModal';
 import { AssessmentHistoryModal } from './components/history/AssessmentHistoryModal';
 import { saveAssessmentRecord } from './utils/historyStorage';
+import { getAccurateTimestamp } from './utils/timeService';
 import { DEMO_PROFILES } from './data/demoProfiles';
 import { INDIAN_MEALS } from './data/indianMeals';
 import { 
@@ -253,7 +254,7 @@ export const App: React.FC = () => {
   }, [applyNavState]);
 
   // Handle selecting a sample demo profile
-  const handleSelectDemoProfile = (profile: UserProfile) => {
+  const handleSelectDemoProfile = async (profile: UserProfile) => {
     const metrics = calculateNutritionMetrics(profile);
     const plan = generateWeeklyPlan(profile, metrics);
     setActiveProfile(profile);
@@ -271,20 +272,27 @@ export const App: React.FC = () => {
       // Ignore quota errors
     }
 
-    // Phase 6: Archive to persistent assessment history vault
+    // Capture online network timestamp with offline device fallback
+    const timeInfo = await getAccurateTimestamp();
+
+    // Archive to persistent assessment history vault marked as demo
     saveAssessmentRecord({
       id: `rec-${profile.id}-${Date.now()}`,
-      timestamp: new Date().toISOString(),
+      timestamp: timeInfo.timestamp,
       profile,
       metrics,
       plan,
+      isDemo: true,
+      timeSource: timeInfo.timeSource,
+      dayOfWeek: timeInfo.dayOfWeek,
+      formattedTime: timeInfo.formattedDate,
     });
 
     navigateTo({ view: 'dashboard', isReassessing: false, modal: null, recipeId: null, hash: null });
   };
 
   // Handle completing the multi-step health assessment wizard
-  const handleCompleteAssessment = (profile: UserProfile) => {
+  const handleCompleteAssessment = async (profile: UserProfile) => {
     const metrics = calculateNutritionMetrics(profile);
     const plan = generateWeeklyPlan(profile, metrics);
 
@@ -303,13 +311,20 @@ export const App: React.FC = () => {
       // Ignore quota errors
     }
 
-    // Phase 6: Archive to persistent assessment history vault
+    // Capture online network timestamp with offline device fallback
+    const timeInfo = await getAccurateTimestamp();
+
+    // Archive to persistent assessment history vault marked as personal user assessment
     saveAssessmentRecord({
       id: `rec-user-${Date.now()}`,
-      timestamp: new Date().toISOString(),
+      timestamp: timeInfo.timestamp,
       profile,
       metrics,
       plan,
+      isDemo: false,
+      timeSource: timeInfo.timeSource,
+      dayOfWeek: timeInfo.dayOfWeek,
+      formattedTime: timeInfo.formattedDate,
     });
 
     navigateTo({ view: 'dashboard', isReassessing: false, modal: null, recipeId: null, hash: null });

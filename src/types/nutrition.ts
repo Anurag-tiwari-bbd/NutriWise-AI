@@ -114,4 +114,9 @@ export interface AssessmentRecord {
   profile: UserProfile;
   metrics: NutritionMetrics;
   plan: WeeklyPlan;
+  isDemo?: boolean;
+  timeSource?: 'online' | 'device';
+  dayOfWeek?: string;
+  formattedTime?: string;
+  notes?: string;
 }

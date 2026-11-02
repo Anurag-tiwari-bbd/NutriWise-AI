@@ -186,9 +186,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <div>
                           <div className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 flex items-center gap-1.5">
                             <span>Past Records Vault</span>
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
-                              Sub-Option
-                            </span>
                           </div>
                           <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
                             View saved evaluations &amp; delta trends
