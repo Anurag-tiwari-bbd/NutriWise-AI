@@ -196,16 +196,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => handleNavClick('dashboard')}
-                className={`px-2 xl:px-2.5 py-1.5 rounded-xl text-xs xl:text-[13px] font-semibold transition-colors flex items-center gap-1 whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-1 rounded-xl text-xs xl:text-[13px] font-semibold transition-colors flex items-center justify-center whitespace-nowrap ${
                   activeView === 'dashboard'
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 dark:border dark:border-emerald-500/30 font-bold'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#17243A]'
                 }`}
               >
-                <span>Dashboard</span>
-                {hasActivePlan && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                )}
+                <div className="flex flex-col items-center justify-center text-center leading-tight">
+                  <span className="text-xs xl:text-[13px] font-semibold tracking-normal">Nutrition</span>
+                  <span className="text-xs xl:text-[13px] font-semibold tracking-normal flex items-center gap-1">
+                    <span>Dashboard</span>
+                    {hasActivePlan && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    )}
+                  </span>
+                </div>
               </button>
 
               <button
