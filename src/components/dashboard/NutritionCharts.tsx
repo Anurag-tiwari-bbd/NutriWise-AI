@@ -36,6 +36,102 @@ interface NutritionChartsProps {
   profile: UserProfile;
 }
 
+/**
+ * Directional Macro Tooltip:
+ * Renders in whichever direction the slice is located (outward from center).
+ * Strictly prevents overlapping the center hole (calorie numbers and day text).
+ * Compact 2-line layout bounded strictly inside the pie chart container box.
+ */
+interface DirectionalMacroTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  coordinate?: { x: number; y: number };
+  viewBox?: { x: number; y: number; width: number; height: number };
+}
+
+const DirectionalMacroTooltip: React.FC<DirectionalMacroTooltipProps> = ({
+  active,
+  payload,
+  coordinate,
+  viewBox,
+}) => {
+  if (!active || !payload || !payload.length) return null;
+  const item = payload[0];
+  const data = item?.payload;
+  if (!data) return null;
+
+  const width = viewBox?.width || 340;
+  const height = viewBox?.height || 240;
+  const cx = width / 2;
+  const cy = height / 2;
+
+  const curX = coordinate?.x ?? cx;
+  const curY = coordinate?.y ?? cy;
+  const dx = curX - cx;
+  const dy = curY - cy;
+
+  const boxW = 152;
+  const boxH = 46;
+
+  // Calculate ideal target position in the direction of the hovered sector
+  let desiredX: number;
+  if (dx < -10) {
+    // Left slice: position outward to the left, away from center hole
+    desiredX = curX - boxW - 14;
+  } else if (dx > 10) {
+    // Right slice: position outward to the right, away from center hole
+    desiredX = curX + 16;
+  } else {
+    // Near vertical axis: center horizontally
+    desiredX = curX - boxW / 2;
+  }
+
+  let desiredY: number;
+  if (dy < -15) {
+    // Upper slice: position outward towards top, away from center hole
+    desiredY = curY - boxH - 12;
+  } else if (dy > 15) {
+    // Lower slice: position outward towards bottom, away from center hole
+    desiredY = curY + 14;
+  } else {
+    // Near horizontal axis: center vertically
+    desiredY = curY - boxH / 2;
+  }
+
+  // Strict boundary clamping so tooltip NEVER bleeds outside the container box
+  desiredX = Math.max(10, Math.min(desiredX, width - boxW - 10));
+  desiredY = Math.max(8, Math.min(desiredY, height - boxH - 8));
+
+  // Offset relative to Recharts default wrapper anchor (curX + 10, curY + 10)
+  const offsetX = Math.round(desiredX - (curX + 10));
+  const offsetY = Math.round(desiredY - (curY + 10));
+
+  return (
+    <div
+      style={{
+        transform: `translate(${offsetX}px, ${offsetY}px)`,
+        borderColor: `${data.color}99`,
+        width: `${boxW}px`,
+      }}
+      className="px-2.5 py-1.5 rounded-xl bg-slate-900/95 dark:bg-[#0B1220]/95 backdrop-blur-md border shadow-2xl text-left pointer-events-none transition-transform duration-75 select-none"
+    >
+      {/* Line 1: Color dot + Macro Name */}
+      <div className="flex items-center gap-1.5 text-xs font-extrabold text-white leading-tight">
+        <span
+          className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+          style={{ backgroundColor: data.color }}
+        />
+        <span className="truncate">{data.name}</span>
+      </div>
+
+      {/* Line 2: Calories + Grams + Percentage */}
+      <div className="text-[11px] font-semibold text-slate-300 dark:text-slate-300 pl-4 mt-0.5 leading-snug whitespace-nowrap">
+        {data.calories} kcal ({data.grams}g • {data.percent}%)
+      </div>
+    </div>
+  );
+};
+
 export const NutritionCharts: React.FC<NutritionChartsProps> = ({
   metrics,
   plan,
@@ -47,6 +143,9 @@ export const NutritionCharts: React.FC<NutritionChartsProps> = ({
 
   // Selected Day State for Macro Donut Chart (e.g. 'Monday', 'Tuesday', ..., or 'all' for weekly average)
   const [selectedDay, setSelectedDay] = useState<string>('Monday');
+
+  // Hovered slice index for interactive highlighting and synchronization
+  const [hoveredMacroIndex, setHoveredMacroIndex] = useState<number | null>(null);
 
   // Automatically reset water tracker when profile changes
   useEffect(() => {
@@ -206,7 +305,7 @@ export const NutritionCharts: React.FC<NutritionChartsProps> = ({
           </div>
 
           {/* Donut Chart with Centered Dynamic Target */}
-          <div className="relative h-60 w-full flex items-center justify-center">
+          <div className="relative h-60 w-full flex items-center justify-center overflow-hidden">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -217,31 +316,36 @@ export const NutritionCharts: React.FC<NutritionChartsProps> = ({
                   outerRadius={90}
                   paddingAngle={4}
                   dataKey="calories"
+                  onMouseEnter={(_, index) => setHoveredMacroIndex(index)}
+                  onMouseLeave={() => setHoveredMacroIndex(null)}
                 >
-                  {macroData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  {macroData.map((entry, index) => {
+                    const isHovered = hoveredMacroIndex === index;
+                    return (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        stroke={isHovered ? '#ffffff' : entry.color}
+                        strokeWidth={isHovered ? 2.5 : 1}
+                        className="transition-all duration-150 cursor-pointer"
+                        style={{
+                          filter: isHovered ? 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' : 'none',
+                          opacity: hoveredMacroIndex !== null && !isHovered ? 0.75 : 1,
+                        }}
+                      />
+                    );
+                  })}
                 </Pie>
                 <RechartsTooltip
-                  formatter={(value: any, name: any, item: any) => [
-                    `${value} kcal (${item.payload.grams}g • ${item.payload.percent}%)`,
-                    name,
-                  ]}
-                  contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderColor: '#1e293b',
-                    borderRadius: '16px',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)',
-                  }}
-                  itemStyle={{ color: '#ffffff' }}
+                  allowEscapeViewBox={{ x: false, y: false }}
+                  content={<DirectionalMacroTooltip />}
+                  wrapperStyle={{ outline: 'none', pointerEvents: 'none', zIndex: 30 }}
                 />
               </PieChart>
             </ResponsiveContainer>
 
             {/* Inner Center Content - Updates with selected day */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
               <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {currentCalories}
               </span>
@@ -253,26 +357,33 @@ export const NutritionCharts: React.FC<NutritionChartsProps> = ({
 
           {/* Detailed Macro Pills Breakdown - Synchronized with selected day */}
           <div className="grid grid-cols-3 gap-2.5 pt-2">
-            {macroData.map((m) => (
-              <div 
-                key={m.name}
-                className="p-3 rounded-2xl border text-center space-y-0.5 transition-all"
-                style={{ 
-                  backgroundColor: `${m.color}0D`,
-                  borderColor: `${m.color}33`,
-                }}
-              >
-                <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: m.color }}>
-                  {m.name}
-                </span>
-                <div className="text-base font-extrabold text-slate-900 dark:text-white">
-                  {m.grams}g
+            {macroData.map((m, index) => {
+              const isHovered = hoveredMacroIndex === index;
+              return (
+                <div 
+                  key={m.name}
+                  onMouseEnter={() => setHoveredMacroIndex(index)}
+                  onMouseLeave={() => setHoveredMacroIndex(null)}
+                  className={`p-3 rounded-2xl border text-center space-y-0.5 transition-all cursor-pointer ${
+                    isHovered ? 'scale-105 shadow-md' : 'hover:scale-[1.02]'
+                  }`}
+                  style={{ 
+                    backgroundColor: isHovered ? `${m.color}22` : `${m.color}0D`,
+                    borderColor: isHovered ? m.color : `${m.color}33`,
+                  }}
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: m.color }}>
+                    {m.name}
+                  </span>
+                  <div className="text-base font-extrabold text-slate-900 dark:text-white">
+                    {m.grams}g
+                  </div>
+                  <div className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
+                    {m.percent}% ({m.calories} kcal)
+                  </div>
                 </div>
-                <div className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
-                  {m.percent}% ({m.calories} kcal)
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
