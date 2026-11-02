@@ -117,9 +117,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDisclaimer, setActiveView 
 
         {/* Bottom Banner with Medical Caution */}
         <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2 text-center md:text-left">
+          <div className="flex items-center gap-2 text-center md:text-left flex-wrap justify-center md:justify-start">
             <span>
               © {new Date().getFullYear()} NutriWise AI — AI-Based Personalized Nutrition Recommendation Engine aligned with UN SDG 3.
+            </span>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-emerald-400 border border-slate-700/60" title="Engine Version">
+              v1.0.0
             </span>
           </div>
           <div className="flex items-center gap-4">
